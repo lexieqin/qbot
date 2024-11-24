@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  qbot:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: qbot-service
+    ports:
+      - "11434:11434"  # Ollama API port
+      - "8080:8080"    # Flask application port
+    volumes:
+      - ollama_models:/root/.ollama/models  # Persist Ollama models
+    environment:
+      - OLLAMA_HOST=localhost
+      - OLLAMA_PORT=11434
+      - DEFAULT_MODEL=llama3.2
+      - EMBEDDING_MODEL=mxbai-embed-large
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  ollama_models:
+    driver: local

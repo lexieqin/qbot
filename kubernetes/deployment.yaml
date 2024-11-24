@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qbot
+  namespace: default
+  labels:
+    app: qbot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qbot
+  template:
+    metadata:
+      labels:
+        app: qbot
+    spec:
+      containers:
+      - name: qbot
+        image: qbot:latest
+        imagePullPolicy: Never  # Use local image
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 11434
+          name: ollama
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "2"
+          limits:
+            memory: "6Gi"
+            cpu: "4"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 20
+        volumeMounts:
+        - name: ollama-models
+          mountPath: /root/.ollama/models
+      volumes:
+      - name: ollama-models
+        persistentVolumeClaim:
+          claimName: ollama-models-pvc

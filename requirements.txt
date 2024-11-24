@@ -1,0 +1,9 @@
+Flask==2.0.1
+Werkzeug==2.0.3
+ollama==0.3.3
+chromadb==0.4.22
+python-dotenv==1.0.0
+click==8.0.4
+itsdangerous==2.0.1
+Jinja2==3.0.3
+numpy<2.0.0
