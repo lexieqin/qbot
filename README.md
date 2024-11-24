@@ -15,7 +15,7 @@ A Python-based chatbot using Ollama for LLM inference and ChromaDB for vector st
 1. Clone the repository
 ```bash
 git clone https://github.com/lexieqin/qbot.git
-cd chatbot-project
+cd qbot
 ```
 
 2. Using Docker (Recommended)
