@@ -152,6 +152,76 @@ kubectl apply -f .
 - 2 CPU cores
 - 10GB storage for models
 
+### Dynamically Adding Documents
+
+To dynamically add documents to your chatbot's knowledge base, you can use the `DocumentManager` class in the `src/chatbot/utils/document_manager.py` file.
+
+1. Fetch the documents from an external source (e.g., a file storage service):
+```python
+from src.chatbot.utils.document_manager import DocumentManager
+
+document_manager = DocumentManager(
+    embedding_model_path='path/to/sentence-transformer-model',
+    document_source_url='https://example.com/api/documents'
+)
+
+document_manager.fetch_documents()
+```
+
+2. Update the chatbot's document embeddings:
+```python
+all_documents = document_manager.get_documents()
+all_document_embeddings = document_manager.get_document_embeddings()
+
+# Use the updated documents and embeddings in your chatbot logic
+```
+
+This will ensure that your chatbot's knowledge base is dynamically updated with the latest documents from the external source.
+
+### API Endpoints
+
+The QBot application exposes the following API endpoints:
+
+#### 1. `/` (GET)
+- **Description**: Serves the chat interface for the QBot application.
+- **Response**: Renders the `chat.html` template, which provides the user interface for the chatbot.
+
+#### 2. `/health` (GET)
+- **Description**: Performs a health check for the application.
+- **Response**: Returns a JSON response with a `status` field indicating whether the application is "healthy" or "unhealthy". If unhealthy, an `error` field is also included with a description of the issue.
+
+#### 3. `/ask` (POST)
+- **Description**: Handles user questions and generates responses.
+- **Request**: Expects a JSON object with a `prompt` field containing the user's question.
+- **Response**: Returns a JSON object with a `response` field containing the generated answer, and a `processing_time` field indicating the time taken to generate the response.
+
+#### 4. `/documents` (GET)
+- **Description**: Retrieves all documents in the knowledge base.
+- **Response**: Returns a JSON object with a `count` field indicating the number of documents, and a `documents` field containing the list of document texts.
+
+#### 5. `/documents` (POST)
+- **Description**: Adds new documents to the knowledge base.
+- **Request**: Expects a JSON object with a `documents` field containing a list of document texts to be added.
+- **Response**: Returns a JSON object with a `message` field indicating the success of the operation, and a `count` field indicating the number of documents added.
+
+#### 6. `/documents` (DELETE)
+- **Description**: Clears all documents from the knowledge base.
+- **Response**: Returns a JSON object with a `message` field indicating the success of the operation.
+
+#### 7. `/stats` (GET)
+- **Description**: Retrieves statistics about the knowledge base.
+- **Response**: Returns a JSON object with the following fields:
+  - `total_documents`: The total number of documents in the knowledge base.
+  - `average_document_length`: The average length of the documents in the knowledge base.
+  - `status`: The current status of the application (should be "operational").
+
+### Error Handling
+The application includes a `handle_error` function that is responsible for handling different types of exceptions that may occur during the execution of the API endpoints. It logs the error and returns an appropriate JSON response with an `error` field, along with a corresponding HTTP status code.
+
+### Initialization
+The `initialize_app` function is called when the application starts up. It initializes the `VectorStore` and `DocumentManager` instances, which are then used by the API endpoints to manage the knowledge base.
+
+
 ## 📊 Monitoring
 
 The project includes:
