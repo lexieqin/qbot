@@ -14,7 +14,7 @@ A Python-based chatbot using Ollama for LLM inference and ChromaDB for vector st
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/chatbot-project
+git clone https://github.com/lexieqin/qbot.git
 cd chatbot-project
 ```
 
@@ -221,4 +221,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 For support:
 1. Check existing issues
 2. Create a new issue
-3. Contact: your.email@example.com
+3. Contact: lexieqin@gmail.com
