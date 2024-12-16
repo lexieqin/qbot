@@ -76,9 +76,44 @@ def ask() -> Dict[str, Any]:
             "processing_time": f"{processing_time:.2f}s"
         }
 
+
     except Exception as e:
         return handle_error(e)
 
+@app.route('/ask-json', methods=['POST'])
+def ask_structured() -> Dict[str, Any]:
+    """Endpoint for asking questions with JSON-structured responses"""
+    start_time = time.time()
+
+    try:
+        data = request.json
+        if not data:
+            raise ValueError("No data provided")
+
+        prompt = data.get('prompt')
+        if not prompt:
+            raise ValueError("No prompt provided")
+
+        logger.info(f"Received prompt: {prompt}")
+
+        # Generate structured response
+        response_data = vector_store.generate_structured_response(prompt)
+
+        # Calculate processing time
+        processing_time = time.time() - start_time
+
+        logger.info(f"Generated response in {processing_time:.2f} seconds")
+
+        return {
+            "status": "success",
+            "data": {
+                **response_data,
+                "processing_time": f"{processing_time:.2f}s"
+            }
+        }
+
+    except Exception as e:
+        return handle_error(e)
 
 @app.route('/documents', methods=['GET'])
 def get_documents() -> Dict[str, Any]:

@@ -107,3 +107,63 @@ class VectorStore:
             prompt=f"Using this data: {data}. Respond to this prompt: {prompt}"
         )
         return output['response']
+
+    def generate_structured_response(self, prompt: str) -> dict:
+        """Generate structured JSON response for user input"""
+        try:
+            # Generate embedding for the prompt
+            response = ollama.embeddings(
+                prompt=prompt,
+                model="mxbai-embed-large"
+            )
+
+            # Query vector database
+            results = self.collection.query(
+                query_embeddings=[response["embedding"]],
+                n_results=1
+            )
+            data = results['documents'][0][0]
+
+            # Create a formatted prompt for structured output
+            formatted_prompt = f"""
+            You must respond in valid JSON format following this exact structure:
+            {{
+                "answer": "<your detailed answer>",
+                "source": "<the source document used>",
+                "confidence": <float between 0 and 1>
+            }}
+
+            Using this context: {data}
+            Respond to this prompt: {prompt}
+
+            Remember to ONLY return valid JSON.
+            """
+
+            # Generate response using retrieved data
+            output = ollama.generate(
+                model="llama3.2",
+                prompt=formatted_prompt
+            )
+
+            try:
+                # Parse the response as JSON
+                json_response = json.loads(output['response'])
+
+                # Ensure all required fields are present
+                return {
+                    "answer": json_response.get("answer", ""),
+                    "confidence": json_response.get("confidence", 0.0)
+                }
+
+            except json.JSONDecodeError:
+                # Fallback if response isn't valid JSON
+                return {
+                    "answer": output['response'],
+                    "confidence": 0.0
+                }
+
+        except Exception as e:
+            return {
+                "answer": f"Error generating response: {str(e)}",
+                "confidence": 0.0
+            }
